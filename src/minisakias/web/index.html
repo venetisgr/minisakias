@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Μηνυσάκιας — πώς μπορώ να κινηθώ νομικά;</title>
+  <meta name="description" content="Περιγράψτε το πρόβλημά σας με απλά λόγια. Η τεχνητή νοημοσύνη βρίσκει τα σχετικά άρθρα των ελληνικών κωδίκων και σας εξηγεί τι μπορείτε να κάνετε: μήνυση, αγωγή, εξώδικο, καταγγελία, προθεσμίες.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <a class="skip" href="#question">Μετάβαση στην ερώτηση</a>
+
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Μηνυσάκιας — αρχική">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 5v21M9 27h14M6 10h20M16 5.5a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z" />
+        <path d="M6 10 2.5 18a3.6 3.6 0 0 0 7 0L6 10Zm20 0-3.5 8a3.6 3.6 0 0 0 7 0L26 10Z" />
+      </svg>
+      <span class="brand-name">Μηνυσάκιας</span>
+      <span class="badge" id="demo-badge" hidden>επίδειξη</span>
+    </a>
+    <nav class="topnav">
+      <button type="button" class="ghost" id="new-case" hidden>Νέα υπόθεση</button>
+      <a href="/oroi">Όροι &amp; πηγές</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="hero">
+      <h1>Πείτε μας τι συνέβη.<br>Δείτε πώς μπορείτε να κινηθείτε νομικά.</h1>
+      <p class="lede">Περιγράψτε το πρόβλημά σας με απλά λόγια. Βρίσκουμε τα σχετικά άρθρα των ελληνικών κωδίκων και
+        σας εξηγούμε τους δρόμους που έχετε — μήνυση, αγωγή, εξώδικο, καταγγελία — με τα βήματα και τις προθεσμίες.</p>
+    </section>
+
+    <section class="thread" id="thread" aria-live="polite" hidden></section>
+
+    <form class="composer" id="composer" autocomplete="off">
+      <label class="sr-only" for="question">Το πρόβλημά σας</label>
+      <textarea id="question" name="question" rows="3" maxlength="4000" required
+        placeholder="Π.χ. «Ο εργοδότης μου δεν με έχει πληρώσει δύο μήνες και απειλεί να με απολύσει αν παραπονεθώ…»"></textarea>
+      <div class="composer-row">
+        <p class="hint" id="hint">Δεν χρειάζονται ονόματα, ΑΦΜ ή διευθύνσεις — γράψτε μόνο τι συνέβη.</p>
+        <button type="submit" id="send">Ρωτήστε</button>
+      </div>
+    </form>
+
+    <section class="starters" id="starters" aria-labelledby="starters-title">
+      <h2 id="starters-title">Ή ξεκινήστε από ένα παράδειγμα</h2>
+      <ul class="examples" id="examples">
+        <li><button type="button" data-text="Με απέλυσαν χωρίς προειδοποίηση μετά από τέσσερα χρόνια δουλειάς και δεν μου έδωσαν αποζημίωση. Τι μπορώ να κάνω;"><span>Εργασία</span>Με απέλυσαν χωρίς αποζημίωση</button></li>
+        <li><button type="button" data-text="Ένας γείτονας με χτύπησε σε καβγά πριν από δύο εβδομάδες και χρειάστηκε να πάω στο νοσοκομείο. Μπορώ να του κάνω μήνυση;"><span>Βία</span>Με χτύπησαν — μπορώ να κάνω μήνυση;</button></li>
+        <li><button type="button" data-text="Παρέδωσα το διαμέρισμα που νοίκιαζα σε καλή κατάσταση, αλλά ο ιδιοκτήτης αρνείται να μου επιστρέψει την εγγύηση των δύο μισθωμάτων."><span>Μίσθωση</span>Δεν μου επιστρέφουν την εγγύηση</button></li>
+        <li><button type="button" data-text="Πλήρωσα με τραπεζική μεταφορά για ένα κινητό που είδα σε αγγελία στο διαδίκτυο και ο πωλητής εξαφανίστηκε χωρίς να το στείλει."><span>Απάτη</span>Πλήρωσα και ο πωλητής εξαφανίστηκε</button></li>
+        <li><button type="button" data-text="Κάποιος γράφει ψέματα για μένα στα μέσα κοινωνικής δικτύωσης, με το όνομά μου, και τα βλέπουν συνάδελφοι και πελάτες μου."><span>Προσβολή</span>Γράφουν ψέματα για μένα στο διαδίκτυο</button></li>
+        <li><button type="button" data-text="Δάνεισα 3.000 ευρώ σε έναν γνωστό με ιδιωτικό συμφωνητικό πριν από έναν χρόνο και δεν μου τα επιστρέφει, παρότι του το έχω ζητήσει πολλές φορές."><span>Οφειλή</span>Δάνεισα χρήματα και δεν μου τα επιστρέφουν</button></li>
+      </ul>
+
+      <ol class="steps">
+        <li><strong>Περιγράφετε</strong> τι συνέβη, όπως θα το λέγατε σε έναν φίλο.</li>
+        <li><strong>Βρίσκουμε</strong> τα άρθρα του Ποινικού, του Αστικού και των άλλων κωδίκων που σας αφορούν.</li>
+        <li><strong>Σας εξηγούμε</strong> τις επιλογές σας, με παραπομπές που μπορείτε να ανοίξετε και να διαβάσετε.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p><strong>Γενική νομική πληροφόρηση από τεχνητή νοημοσύνη — όχι νομική συμβουλή.</strong>
+      Μπορεί να κάνει λάθη και τα κείμενα των νόμων που διαβάζει δεν είναι πάντα τα πιο πρόσφατα.
+      Πριν καταθέσετε ή υπογράψετε κάτι, μιλήστε με δικηγόρο. <a href="/oroi">Περισσότερα</a></p>
+    <p class="urgent">Κινδυνεύετε τώρα; Αστυνομία <a href="tel:100">100</a> · Έκτακτη ανάγκη <a href="tel:112">112</a> ·
+      Βία κατά γυναικών <a href="tel:15900">15900</a> · Παιδιά σε κίνδυνο <a href="tel:1056">1056</a></p>
+  </footer>
+
+  <dialog class="article" id="article-dialog" aria-labelledby="article-title">
+    <header>
+      <div>
+        <p class="eyebrow" id="article-code"></p>
+        <h2 id="article-title"></h2>
+      </div>
+      <button type="button" class="ghost close" id="article-close" aria-label="Κλείσιμο">✕</button>
+    </header>
+    <p class="version" id="article-version"></p>
+    <div class="article-text" id="article-text"></div>
+    <p class="article-source" id="article-source"></p>
+  </dialog>
+
+  <script src="/static/vendor/marked.min.js"></script>
+  <script src="/static/vendor/purify.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

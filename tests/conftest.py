@@ -44,19 +44,34 @@ def settings(monkeypatch) -> Settings:
 
 
 class FakeLLM:
-    """Stands in for the provider: a fixed plan from the router and a fixed answer from the writer, with every call
-    kept for the test to look at."""
+    """Stands in for the provider: a fixed plan from the router, a fixed choice from the selector, a fixed answer
+    from the writer and fixed corrections from the proofreader, with every call kept for the test to look at."""
+
+    STEPS = {"Είσαι ο «δρομολογητής»": "router", "Είσαι ο «επιλογέας»": "selector", "Είσαι διορθωτής": "proofreader"}
 
     def __init__(self, plan=None, answer="Διώκεται με έγκληση [ΠΚ 308], μέσα σε τρεις μήνες [ΠΚ 114].",
-                 route_error=None, write_error=None):
-        self.plan, self.answer, self.route_error, self.write_error = plan, answer, route_error, write_error
+                 selection=None, fixes=None, route_error=None, write_error=None, proof_error=None):
+        self.plan, self.answer, self.selection, self.fixes = plan, answer, selection, fixes
+        self.route_error, self.write_error, self.proof_error = route_error, write_error, proof_error
         self.calls: list[dict] = []
 
+    def step(self, name: str) -> list[dict]:
+        return [c for c in self.calls if c["step"] == name]
+
     async def complete_json(self, system, messages, **kw):
-        self.calls.append({"step": "router", "system": system, "messages": messages, **kw})
-        if self.route_error:
-            raise self.route_error
-        return self.plan if self.plan is not None else {"articles": [], "queries": [], "codes": []}
+        step = next(name for start, name in self.STEPS.items() if system.startswith(start))
+        self.calls.append({"step": step, "system": system, "messages": messages, **kw})
+        if step == "router":
+            if self.route_error:
+                raise self.route_error
+            return self.plan if self.plan is not None else {"articles": [], "queries": [], "codes": []}
+        if step == "selector":
+            if self.selection is None:
+                raise ValueError("no selection")
+            return {"articles": self.selection}
+        if self.proof_error:
+            raise self.proof_error
+        return {"fixes": self.fixes or []}
 
     async def stream(self, system, messages, **kw):
         self.calls.append({"step": "writer", "system": system, "messages": messages, **kw})

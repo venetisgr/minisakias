@@ -6,12 +6,16 @@ import asyncio
 import re
 from typing import AsyncIterator
 
+from .prompts import PROOFREADER_SYSTEM
+
 _LABEL = re.compile(r"^\[([^\]]+)\]", re.M)
 
 
 class DemoLLM:
     async def complete_json(self, system: str, messages: list[dict], **_) -> dict:
-        raise ValueError("demo mode has no router; the search uses the question's own words")
+        if system == PROOFREADER_SYSTEM:
+            return {"fixes": []}
+        raise ValueError("demo mode has no router or selector; the search uses the question's own words")
 
     async def stream(self, system: str, messages: list[dict], **_) -> AsyncIterator[str]:
         labels = _LABEL.findall(messages[-1]["content"])[:4]

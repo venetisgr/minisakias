@@ -1,7 +1,7 @@
 /* Μηνυσάκιας — the conversation page.
  *
  * The conversation lives here, in the browser (sessionStorage): each question sends it whole to POST /api/ask and
- * reads the answer back as a stream of JSON lines (status → sources → text … → done | error).
+ * reads the answer back as a stream of JSON lines (status → sources → text … → [replace] → done | error).
  */
 (function () {
   "use strict";
@@ -12,6 +12,8 @@
     routing: "Ψάχνω στους κώδικες τις διατάξεις που σας αφορούν…",
     writing: "Διαβάζω τα άρθρα και γράφω την απάντηση…",
   };
+  const SLOW_AFTER_MS = 15000;
+  const SLOW_NOTE = " Μερικές φορές χρειάζεται έως και ένα λεπτό.";
 
   const $ = (id) => document.getElementById(id);
   const thread = $("thread"), form = $("composer"), input = $("question"), send = $("send"), hint = $("hint");
@@ -215,7 +217,10 @@
     renderAll();
     const ui = [...thread.querySelectorAll(".msg.assistant")].pop();
     const status = ui.querySelector(".status"), answer = ui.querySelector(".answer"), extras = ui.querySelector(".extras");
-    status.textContent = STATUS.routing;
+    let stage = "routing", slow = false;
+    const showStatus = () => { status.textContent = STATUS[stage] + (slow ? SLOW_NOTE : ""); };
+    const slowTimer = setTimeout(() => { slow = true; if (!reply.content) showStatus(); }, SLOW_AFTER_MS);
+    showStatus();
     status.hidden = false;
     scrollToEnd();
     setBusy(true);
@@ -245,12 +250,16 @@
       let buffer = "", finished = false;
       const handle = (event) => {
         if (event.type === "status") {
-          if (!reply.content) status.textContent = STATUS[event.stage] || status.textContent;
+          if (STATUS[event.stage]) stage = event.stage;
+          if (!reply.content) showStatus();
         } else if (event.type === "sources") {
           reply.sources = event.items;
         } else if (event.type === "text") {
           reply.content += event.text;
           status.hidden = true;
+          if (!pending) { pending = true; requestAnimationFrame(paint); }
+        } else if (event.type === "replace") {
+          reply.content = event.text;
           if (!pending) { pending = true; requestAnimationFrame(paint); }
         } else if (event.type === "done") {
           reply.cited = event.cited;
@@ -276,6 +285,7 @@
       if (e.name === "AbortError") reply.stopped = true;
       else reply.error = e.message || "Κάτι πήγε στραβά. Δοκιμάστε ξανά.";
     } finally {
+      clearTimeout(slowTimer);
       controller = null;
       setBusy(false);
     }

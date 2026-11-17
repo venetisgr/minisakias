@@ -7,6 +7,7 @@ that inlines it as <think>…</think> is filtered.
 from __future__ import annotations
 
 import json
+import logging
 import re
 from typing import AsyncIterator
 
@@ -15,6 +16,8 @@ import openai
 from openai import AsyncOpenAI
 
 from .config import Settings
+
+log = logging.getLogger("minisakias")
 
 # parameters not every model or server accepts; a call that is rejected for one of them is repeated without them
 OPTIONAL_PARAMS = ("reasoning_effort", "response_format", "stream_options", "temperature", "top_p")
@@ -86,6 +89,14 @@ def _fail(e: Exception) -> LLMError:
     return LLMError("failed", type(e).__name__)
 
 
+def _log_usage(model: str, usage) -> None:
+    """Token counts per call — what a question costs — and nothing of what was asked or answered."""
+    if usage is not None:
+        details = getattr(usage, "prompt_tokens_details", None)
+        log.info("llm call: model=%s input=%s cached=%s output=%s", model, getattr(usage, "prompt_tokens", None),
+                 getattr(details, "cached_tokens", None), getattr(usage, "completion_tokens", None))
+
+
 class LLM:
     def __init__(self, settings: Settings, client: AsyncOpenAI | None = None):
         self.settings = settings
@@ -135,6 +146,7 @@ class LLM:
             raise
         except openai.OpenAIError as e:
             raise _fail(e) from e
+        _log_usage(model, getattr(response, "usage", None))
         return extract_json(response.choices[0].message.content or "")
 
     async def stream(self, system: str, messages: list[dict], *, model: str, effort: str,
@@ -147,7 +159,8 @@ class LLM:
             response = await self._create(**params)
             async for chunk in response:
                 if not chunk.choices:
-                    continue                                   # the closing usage chunk
+                    _log_usage(model, getattr(chunk, "usage", None))   # the closing usage chunk
+                    continue
                 text = think.feed(chunk.choices[0].delta.content or "")
                 if text:
                     yield text
